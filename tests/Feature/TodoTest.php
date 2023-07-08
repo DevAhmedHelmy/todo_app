@@ -63,14 +63,14 @@ class TodoTest extends TestCase
         $response->assertStatus(401);
     }
 
-    public function test_login_user_can_add_new_todo_list_with_valid_data()
+    public function test_can_add_new_todo()
     {
         $response = $this->actingAs($this->user, 'api')->postJson('/api/todo', [
-            'title'=>'test',
-            'description'=>'test',
-            'due_date'=>'2022-01-01',
-            'priority'=>'low',
-            'status'=>'incomplete',
+            'title' => 'test',
+            'description' => 'test',
+            'due_date' => '2022-01-01',
+            'priority' => 'low',
+            'status' => 'incomplete',
 
         ]);
         $response->assertStatus(201);
@@ -79,21 +79,15 @@ class TodoTest extends TestCase
         ]);
     }
 
-    public function test_login_user_cannot_add_new_todo_list_with_invalid_data()
-    {
-        $response = $this->actingAs($this->user, 'api')->postJson('/api/todo');
-        $response->assertStatus(422);
-    }
-
-    public function test_login_user_can_update_todo_list()
+    public function test_user_can_update_todo_list()
     {
         $todo = Todo::factory()->create(['user_id' => $this->user->id]);
-        $response = $this->actingAs($this->user, 'api')->putJson('/api/todo/'.$todo->id, [
-            'title'=>'update test',
-            'description'=>$todo->description,
-            'due_date'=> $todo->due_date,
-            'priority'=> $todo->priority,
-            'status'=> $todo->status,
+        $response = $this->actingAs($this->user, 'api')->putJson('/api/todo/' . $todo->id, [
+            'title' => 'update test',
+            'description' => $todo->description,
+            'due_date' => $todo->due_date,
+            'priority' => $todo->priority,
+            'status' => $todo->status,
         ]);
         $response->assertStatus(200);
         $this->assertDatabaseHas('todos', [
@@ -101,10 +95,10 @@ class TodoTest extends TestCase
         ]);
     }
 
-    public function test_login_user_can_update_status_of_todo()
+    public function test_user_can_update_status_of_todo()
     {
         $todo = Todo::factory()->create(['user_id' => $this->user->id, 'status' => 'incomplete']);
-        $response = $this->actingAs($this->user, 'api')->putJson('/api/todo/' . $todo->id. '/update/status', [
+        $response = $this->actingAs($this->user, 'api')->putJson('/api/todo/' . $todo->id . '/update/status', [
             'status' => 'complete',
         ]);
         $response->assertStatus(200);
@@ -112,7 +106,7 @@ class TodoTest extends TestCase
             'status' => 'complete',
         ]);
     }
-    public function test_login_user_can_update_priority_of_todo()
+    public function test_user_can_update_priority_of_todo()
     {
         $todo = Todo::factory()->create(['user_id' => $this->user->id, 'priority' => 'low']);
         $response = $this->actingAs($this->user, 'api')->putJson('/api/todo/' . $todo->id . '/update/priority', [
@@ -124,7 +118,7 @@ class TodoTest extends TestCase
         ]);
     }
 
-    public function test_login_user_can_show_todo()
+    public function test_user_can_show_todo()
     {
         $todo = Todo::factory()->create(['user_id' => $this->user->id]);
         $response = $this->actingAs($this->user, 'api')->getJson('/api/todo/' . $todo->id);
@@ -135,7 +129,7 @@ class TodoTest extends TestCase
         ]);
     }
 
-    public function test_login_user_can_delete_todo()
+    public function test_user_can_delete_todo()
     {
         $todo = Todo::factory()->create(['user_id' => $this->user->id]);
         $response = $this->actingAs($this->user, 'api')->deleteJson('/api/todo/' . $todo->id);
@@ -143,5 +137,51 @@ class TodoTest extends TestCase
         $this->assertDatabaseMissing('todos', [
             'id' => $todo->id,
         ]);
+    }
+
+    /**
+     * @dataProvider governorateDate
+     */
+    public function test_request_validation($governorateDate)
+    {
+        $response = $this->actingAs($this->user, 'api')->postJson('/api/todo', $governorateDate);
+        $response->assertStatus(422);
+    }
+
+
+    public static function governorateDate(): array
+    {
+
+        return [
+            'Title Is Required' => [
+                [
+                    'description' => 'test description',
+                    'due_date' => now(),
+                    'priority' => 'low'
+                ]
+            ],
+            'Description Is Required' => [
+                [
+                    'title' => 'test title',
+                    'due_date' => now(),
+                    'priority' => 'low'
+                ]
+            ],
+            'Due Date Is Required' => [
+                [
+                    'title' => 'tets title',
+                    'description' => 'test description',
+                    'priority' => 'low'
+                ]
+            ],
+            'Priority Is Required' => [
+                [
+                    'title' => 'tets title',
+                    'description' => 'test description',
+                    'due_date' => now()
+                ]
+            ],
+
+        ];
     }
 }

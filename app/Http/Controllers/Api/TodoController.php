@@ -7,10 +7,7 @@ use App\Http\Requests\Api\TodoRequest;
 use App\Http\Resources\TodoResource;
 use App\Http\Traits\ApiResponseTrait;
 use App\Library\ResourcePaginator;
-use App\Models\Todo;
-use Illuminate\Http\Exceptions\HttpResponseException;
-use Illuminate\Http\Request;
-use Illuminate\Http\Response;
+use Illuminate\Http\{Request, Response};
 use Illuminate\Support\Facades\Validator;
 
 class TodoController extends Controller
@@ -20,10 +17,9 @@ class TodoController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index()
+    public function index(Request $request)
     {
-
-        $todos = Todo::byUser()->paginate(10);
+        $todos = $request->user('api')->todos()->paginate(10);
         $collection = new ResourcePaginator(TodoResource::collection($todos));
         return $this->successResponse($collection);
     }
@@ -33,20 +29,16 @@ class TodoController extends Controller
      */
     public function store(TodoRequest $request)
     {
-        $data = $request->validated();
-        $data['user_id'] = auth('api')->id();
-        $todo = Todo::create($data);
-        $todo->refresh();
-
+        $todo = $request->user('api')->todos()->create($request->validated());
         return $this->successResponse(new TodoResource($todo), Response::HTTP_CREATED);
     }
 
     /**
      * Display the specified resource.
      */
-    public function show($id)
+    public function show(Request $request, $id)
     {
-        $todo = $this->getTodo($id);
+        $todo  = $request->user('api')->todos()->findOrFail($id);
 
         return $this->successResponse(new TodoResource($todo));
     }
@@ -56,7 +48,7 @@ class TodoController extends Controller
      */
     public function update(TodoRequest $request, $id)
     {
-        $todo = $this->getTodo($id);
+        $todo =  $request->user('api')->todos()->findOrFail($id);
         $data = $request->all();
         $data['user_id'] = auth('api')->id();
         $todo->update($data);
@@ -69,7 +61,7 @@ class TodoController extends Controller
      */
     public function destroy($id)
     {
-        $todo = $this->getTodo($id);
+        $todo = auth()->user('api')->todos()->findOrFail($id);
         $todo->delete();
 
         return $this->successResponse();
@@ -77,7 +69,7 @@ class TodoController extends Controller
 
     public function updateStatus($id)
     {
-        $todo = $this->getTodo($id);
+        $todo =  auth()->user('api')->todos()->findOrFail($id);
         $status = $todo->status == 'complete' ? 'incomplete' : 'complete';
         $todo->update(['status' => $status]);
 
@@ -93,19 +85,9 @@ class TodoController extends Controller
         if ($validator->fails()) {
             return $this->errorResponse($validator->errors(), Response::HTTP_UNPROCESSABLE_ENTITY);
         }
-        $todo = $this->getTodo($id);
+        $todo = $todo = auth()->user('api')->todos()->findOrFail($id);
         $todo->update(['priority' => $request->priority]);
 
         return $this->successResponse($todo);
-    }
-
-    private function getTodo($id)
-    {
-        $todo = Todo::byUser()->find($id);
-        if (! $todo) {
-            throw new HttpResponseException($this->errorResponse('Todo not found', Response::HTTP_NOT_FOUND));
-        }
-
-        return $todo;
     }
 }

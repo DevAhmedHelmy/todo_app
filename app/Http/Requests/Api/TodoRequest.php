@@ -12,7 +12,7 @@ class TodoRequest extends BaseRequest
     public function rules(): array
     {
         return [
-            'title' => ['required'],
+            'title' => ['required','max:255'],
             'description' => ['required'],
             'due_date' => ['required'],
             'priority' => ['required'],
