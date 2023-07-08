@@ -22,7 +22,7 @@ class TodoTest extends TestCase
     }
     public function test_unautnhenticated_user_cannot_access_todo_list()
     {
-        $response = $this->getJson('/api/todo');
+        $response = $this->getJson('/api/todos');
         $response->assertStatus(401);
     }
     public function test_todo_list_by_login_user()
