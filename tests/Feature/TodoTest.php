@@ -20,11 +20,11 @@ class TodoTest extends TestCase
         Artisan::call('passport:install');
         $this->user = User::factory()->create(['email' => 'test@example.com', 'password' => 'password']);
     }
-    // public function test_unautnhenticated_user_cannot_access_todo_list()
-    // {
-    //     $response = $this->getJson('/api/todo');
-    //     $response->assertStatus(401);
-    // }
+    public function test_unautnhenticated_user_cannot_access_todo_list()
+    {
+        $response = $this->getJson('/api/todo');
+        $response->assertStatus(401);
+    }
     public function test_todo_list_by_login_user()
     {
         $todo = Todo::factory()->create(['user_id' => $this->user->id]);
