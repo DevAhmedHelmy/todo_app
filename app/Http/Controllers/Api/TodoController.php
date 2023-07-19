@@ -29,8 +29,8 @@ class TodoController extends Controller
     {
         // $todos = $request->user('api')->todos()->paginate(10);
         // $collection = new ResourcePaginator(TodoResource::collection($todos));
-        $collection = TodoResource::collection($this->todoService->getAll());
-        return $this->successResponse($collection);
+        // $collection = TodoResource::collection();
+        return $this->successResponse($this->todoService->getAll());
     }
 
     /**
@@ -41,8 +41,10 @@ class TodoController extends Controller
 
         $dto = TodoDto::fromRequest($request->validated());
         $todo = $this->todoService->createTodo($dto);
+        // dd($todo);
         // $todo = $request->user('api')->todos()->create($request->validated());
-        return $this->successResponse(new TodoResource($todo), Response::HTTP_CREATED);
+        return response()->json($todo);
+        // return $this->successResponse(new TodoResource($todo), Response::HTTP_CREATED);
     }
 
     /**

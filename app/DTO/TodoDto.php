@@ -4,8 +4,9 @@ namespace App\DTO;
 
 use Carbon\Carbon;
 use App\Entities\TodoEntity;
+use jsonSerializable;
 
-class TodoDto
+class TodoDto implements jsonSerializable
 {
     private $id;
     private $title;
@@ -126,5 +127,38 @@ class TodoDto
         $dto->setCreatedAt($entity->getCreatedAt());
         $dto->setUpdatedAt($entity->getUpdatedAt());
         return $dto;
+    }
+
+
+    public static function collection($entities): array
+    {
+        return array_map(function ($entity) {
+            return self::fromEntity($entity);
+        }, $entities);
+    }
+
+
+    public function toArray(): array
+    {
+
+        return [
+            'ID'            => $this->getId(),
+            'title'         => $this->getTitle(),
+            'Description'   => $this->getDescription(),
+            'Status'        => $this->getStatus(),
+            'Priority'      => $this->getPriority(),
+            'Due Date'      => $this->getDueDate(),
+            'Created At'    => $this->getCreatedAt(),
+            'Updated At'    => $this->getUpdatedAt(),
+
+        ];
+    }
+    /**
+     * @inheritDoc
+     */
+    public function jsonSerialize()
+    {
+
+        return $this->toArray();
     }
 }

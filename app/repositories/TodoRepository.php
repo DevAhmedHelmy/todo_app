@@ -9,7 +9,8 @@ class TodoRepository
 {
     public function getAll()
     {
-        return auth()->user('api')->todos()->get();
+        $todos=  auth()->user('api')->todos()->get();
+        return TodoEntity::collection($todos);
     }
     public function createTodo(TodoEntity $todoEntity): TodoEntity
     {
@@ -42,7 +43,7 @@ class TodoRepository
         return TodoEntity::fromModel($todo);
     }
 
-    public function getTodo(int $id): TodoEntity
+    public function getById(int $id): TodoEntity
     {
         $todo = Todo::findOrFail($id);
         return TodoEntity::fromModel($todo);

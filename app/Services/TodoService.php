@@ -16,7 +16,7 @@ class TodoService
 
     public function getAll()
     {
-        return $this->todoRepository->getAll();
+        return TodoDto::collection($this->todoRepository->getAll());
     }
     public function createTodo(TodoDto $todoDto): TodoDto
     {
@@ -47,9 +47,9 @@ class TodoService
         return TodoDto::fromEntity($todo);
     }
 
-    public function getTodo(int $id): TodoDto
+    public function getById(int $id): TodoDto
     {
-        $todo = $this->todoRepository->getTodo($id);
+        $todo = $this->todoRepository->getById($id);
         return TodoDto::fromEntity($todo);
     }
 
@@ -58,7 +58,7 @@ class TodoService
         return $this->todoRepository->deleteTodo($id);
     }
 
-    public function updateStatus(int $id) : TodoDto
+    public function updateStatus(int $id): TodoDto
     {
         $todo = $this->todoRepository->updateStatus($id);
         return TodoDto::fromEntity($todo);

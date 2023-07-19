@@ -111,4 +111,13 @@ class TodoEntity
         $entity->setUpdatedAt($todo->updated_at);
         return $entity;
     }
+
+    // i want make function take more than 1 entity
+
+    public static function collection($todos): array
+    {
+        return $todos->map(function ($todo) {
+            return self::fromModel($todo);
+        })->toArray();
+    }
 }
