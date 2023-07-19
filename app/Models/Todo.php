@@ -11,10 +11,5 @@ class Todo extends Model
 
     protected $guarded = [];
 
-    // make scope by login user
-    public function scopeByUser($query)
-    {
 
-        return $query->where('user_id', auth('api')->id());
-    }
 }
