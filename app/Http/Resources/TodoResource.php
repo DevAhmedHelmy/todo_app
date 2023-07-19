@@ -15,12 +15,12 @@ class TodoResource extends JsonResource
     public function toArray(Request $request): array
     {
         return [
-            'id' => $this->id,
-            'title' => $this->title,
-            'description' => $this->description,
-            'due_date' => $this->due_date,
-            'priority' => $this->priority,
-            'status' => $this->status,
+            'id' => $this->getId(),
+            'title' => $this->getTitle(),
+            'description' => $this->getDescription(),
+            'due_date' => $this->getDueDate(),
+            'priority' => $this->getPriority(),
+            'status' => $this->getStatus(),
 
         ];
     }

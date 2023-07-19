@@ -2,11 +2,13 @@
 
 namespace App\Http\Controllers\Api;
 
+use App\DTO\TodoDto;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Api\TodoRequest;
 use App\Http\Resources\TodoResource;
 use App\Http\Traits\ApiResponseTrait;
 use App\Library\ResourcePaginator;
+use App\Services\TodoService;
 use Illuminate\Http\{Request, Response};
 use Illuminate\Support\Facades\Validator;
 
@@ -14,13 +16,20 @@ class TodoController extends Controller
 {
     use ApiResponseTrait;
 
+    private $todoService;
+    public function __construct(TodoService $todoService)
+    {
+        $this->todoService = $todoService;
+    }
+
     /**
      * Display a listing of the resource.
      */
     public function index(Request $request)
     {
-        $todos = $request->user('api')->todos()->paginate(10);
-        $collection = new ResourcePaginator(TodoResource::collection($todos));
+        // $todos = $request->user('api')->todos()->paginate(10);
+        // $collection = new ResourcePaginator(TodoResource::collection($todos));
+        $collection = TodoResource::collection($this->todoService->getAll());
         return $this->successResponse($collection);
     }
 
@@ -29,16 +38,22 @@ class TodoController extends Controller
      */
     public function store(TodoRequest $request)
     {
-        $todo = $request->user('api')->todos()->create($request->validated());
+
+        $dto = TodoDto::fromRequest($request->validated());
+        $todo = $this->todoService->createTodo($dto);
+        // $todo = $request->user('api')->todos()->create($request->validated());
         return $this->successResponse(new TodoResource($todo), Response::HTTP_CREATED);
     }
 
     /**
      * Display the specified resource.
      */
-    public function show(Request $request, $id)
+    public function show($id)
     {
-        $todo  = $request->user('api')->todos()->findOrFail($id);
+
+        // $todo  = $request->user('api')->todos()->findOrFail($id);
+
+        $todo = $this->todoService->getTodo($id);
 
         return $this->successResponse(new TodoResource($todo));
     }
@@ -48,11 +63,12 @@ class TodoController extends Controller
      */
     public function update(TodoRequest $request, $id)
     {
-        $todo =  $request->user('api')->todos()->findOrFail($id);
-        $data = $request->all();
-        $data['user_id'] = auth('api')->id();
-        $todo->update($data);
-
+        // $todo =  $request->user('api')->todos()->findOrFail($id);
+        // $data = $request->all();
+        // $data['user_id'] = auth('api')->id();
+        // $todo->update($data);
+        $dto = TodoDto::fromRequest($request->validated());
+        $todo = $this->todoService->updateTodo($id, $dto);
         return $this->successResponse(new TodoResource($todo));
     }
 
@@ -61,19 +77,19 @@ class TodoController extends Controller
      */
     public function destroy($id)
     {
-        $todo = auth()->user('api')->todos()->findOrFail($id);
-        $todo->delete();
-
+        // $todo = auth()->user('api')->todos()->findOrFail($id);
+        // $todo->delete();
+        $this->todoService->deleteTodo($id);
         return $this->successResponse();
     }
 
     public function updateStatus($id)
     {
-        $todo =  auth()->user('api')->todos()->findOrFail($id);
-        $status = $todo->status == 'complete' ? 'incomplete' : 'complete';
-        $todo->update(['status' => $status]);
-
-        return $this->successResponse($todo);
+        // $todo =  auth()->user('api')->todos()->findOrFail($id);
+        // $status = $todo->status == 'complete' ? 'incomplete' : 'complete';
+        // $todo->update(['status' => $status]);
+        $todo = $this->todoService->updateStatus($id);
+        return $this->successResponse(new TodoResource($todo));
     }
 
     public function updatePriority(Request $request, $id)
@@ -85,9 +101,11 @@ class TodoController extends Controller
         if ($validator->fails()) {
             return $this->errorResponse($validator->errors(), Response::HTTP_UNPROCESSABLE_ENTITY);
         }
-        $todo = $todo = auth()->user('api')->todos()->findOrFail($id);
-        $todo->update(['priority' => $request->priority]);
+        // $todo = $todo = auth()->user('api')->todos()->findOrFail($id);
+        // $todo->update(['priority' => $request->priority]);
 
-        return $this->successResponse($todo);
+        // return $this->successResponse($todo);
+        $todo = $this->todoService->updatePriority($id, $request->priority);
+        return $this->successResponse(new TodoResource($todo));
     }
 }
