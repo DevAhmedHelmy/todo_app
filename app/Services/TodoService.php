@@ -26,8 +26,7 @@ class TodoService
         $entity->setStatus($todoDto->getStatus());
         $entity->setPriority($todoDto->getPriority());
         $entity->setDueDate($todoDto->getDueDate());
-        $entity->setCreatedAt($todoDto->getCreatedAt());
-        $entity->setUpdatedAt($todoDto->getUpdatedAt());
+
         $todo = $this->todoRepository->createTodo($entity);
         return TodoDto::fromEntity($todo);
     }
@@ -41,8 +40,6 @@ class TodoService
         $entity->setStatus($todoDto->getStatus());
         $entity->setPriority($todoDto->getPriority());
         $entity->setDueDate($todoDto->getDueDate());
-        $entity->setCreatedAt($todoDto->getCreatedAt());
-        $entity->setUpdatedAt($todoDto->getUpdatedAt());
         $todo = $this->todoRepository->updateTodo($id, $entity);
         return TodoDto::fromEntity($todo);
     }

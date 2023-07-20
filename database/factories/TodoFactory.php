@@ -2,6 +2,8 @@
 
 namespace Database\Factories;
 
+use DateTime;
+use Carbon\Carbon;
 use App\Models\User;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
@@ -17,11 +19,13 @@ class TodoFactory extends Factory
      */
     public function definition(): array
     {
+
+
         return [
             'title' => fake()->sentence(),
             'description' => fake()->paragraph(),
             'user_id' => User::factory(),
-            'due_date' => fake()->dateTimeBetween(),
+            'due_date' => Carbon::parse(Carbon::now()->addDays(3)),
             'priority' => fake()->randomElement(['low', 'medium', 'high']),
             'status' => fake()->randomElement(['complete', 'incomplete']),
         ];

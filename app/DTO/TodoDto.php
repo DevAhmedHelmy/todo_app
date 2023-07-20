@@ -2,20 +2,22 @@
 
 namespace App\DTO;
 
+use DateTime;
 use Carbon\Carbon;
-use App\Entities\TodoEntity;
+use App\DTO\UserDTO;
 use jsonSerializable;
+use App\Entities\TodoEntity;
+use App\Models\User;
 
 class TodoDto implements jsonSerializable
 {
-    private $id;
-    private $title;
-    private $description;
-    private $status;
-    private $priority;
-    private $due_date;
-    private $created_at;
-    private $updated_at;
+    private int $id;
+    private string $title;
+    private string $description;
+    private string $status;
+    private string $priority;
+    private ?DateTime $due_date;
+    private UserDTO $user;
 
     public static function fromRequest(array $request): self
     {
@@ -25,9 +27,7 @@ class TodoDto implements jsonSerializable
         $dto->setDescription($request['description']);
         $dto->setStatus($request['status'] ?? 'incomplete');
         $dto->setPriority($request['priority']);
-        $dto->setDueDate($request['due_date'] ?? Carbon::now());
-        $dto->setCreatedAt($request['created_at'] ?? Carbon::now());
-        $dto->setUpdatedAt($request['updated_at'] ?? Carbon::now());
+        $dto->setDueDate(Carbon::parse($request['due_date']) ?? Carbon::parse(Carbon::now()->addDays(3)));
         return $dto;
     }
 
@@ -57,20 +57,16 @@ class TodoDto implements jsonSerializable
         return $this->priority;
     }
 
-    public function getDueDate(): string
+    public function getDueDate(): ?DateTime
     {
         return $this->due_date;
     }
 
-    public function getCreatedAt(): string
+    public function getUser(): UserDTO
     {
-        return $this->created_at;
+        return $this->user;
     }
 
-    public function getUpdatedAt(): string
-    {
-        return $this->updated_at;
-    }
 
 
     // setters
@@ -99,24 +95,22 @@ class TodoDto implements jsonSerializable
         $this->priority = $priority;
     }
 
-    public function setDueDate(string $due_date): void
+    public function setDueDate(DateTime $due_date): void
     {
         $this->due_date = $due_date;
     }
 
-    public function setCreatedAt(string $created_at): void
+    public function setUser($user): void
     {
-        $this->created_at = $created_at;
+        $this->user = UserDTO::fromEntity($user);
     }
 
-    public function setUpdatedAt(string $updated_at): void
-    {
-        $this->updated_at = $updated_at;
-    }
+
 
 
     public static function fromEntity(TodoEntity $entity): TodoDto
     {
+
         $dto = new self();
         $dto->setId($entity->getId());
         $dto->setTitle($entity->getTitle());
@@ -124,8 +118,7 @@ class TodoDto implements jsonSerializable
         $dto->setPriority($entity->getPriority());
         $dto->setDueDate($entity->getDueDate());
         $dto->setDescription($entity->getDescription());
-        $dto->setCreatedAt($entity->getCreatedAt());
-        $dto->setUpdatedAt($entity->getUpdatedAt());
+        $dto->setUser($entity->getUser());
         return $dto;
     }
 
@@ -141,6 +134,7 @@ class TodoDto implements jsonSerializable
     public function toArray(): array
     {
 
+
         return [
             'ID'            => $this->getId(),
             'title'         => $this->getTitle(),
@@ -148,9 +142,7 @@ class TodoDto implements jsonSerializable
             'Status'        => $this->getStatus(),
             'Priority'      => $this->getPriority(),
             'Due Date'      => $this->getDueDate(),
-            'Created At'    => $this->getCreatedAt(),
-            'Updated At'    => $this->getUpdatedAt(),
-
+            'User'          => $this->getUser(),
         ];
     }
     /**

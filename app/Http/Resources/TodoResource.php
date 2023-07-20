@@ -21,6 +21,7 @@ class TodoResource extends JsonResource
             'due_date' => $this->getDueDate(),
             'priority' => $this->getPriority(),
             'status' => $this->getStatus(),
+            'user name' => $this->getUser()->getName(),
 
         ];
     }

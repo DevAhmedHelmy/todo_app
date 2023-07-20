@@ -27,10 +27,8 @@ class TodoController extends Controller
      */
     public function index(Request $request)
     {
-        // $todos = $request->user('api')->todos()->paginate(10);
-        // $collection = new ResourcePaginator(TodoResource::collection($todos));
-        // $collection = TodoResource::collection();
-        return $this->successResponse($this->todoService->getAll());
+        // dd($this->todoService->getAll());
+        return $this->successResponse(TodoResource::collection($this->todoService->getAll()));
     }
 
     /**
@@ -41,10 +39,7 @@ class TodoController extends Controller
 
         $dto = TodoDto::fromRequest($request->validated());
         $todo = $this->todoService->createTodo($dto);
-        // dd($todo);
-        // $todo = $request->user('api')->todos()->create($request->validated());
-        return response()->json($todo);
-        // return $this->successResponse(new TodoResource($todo), Response::HTTP_CREATED);
+        return $this->successResponse($todo, Response::HTTP_CREATED);
     }
 
     /**
@@ -53,9 +48,8 @@ class TodoController extends Controller
     public function show($id)
     {
 
-        // $todo  = $request->user('api')->todos()->findOrFail($id);
 
-        $todo = $this->todoService->getTodo($id);
+        $todo = $this->todoService->getById($id);
 
         return $this->successResponse(new TodoResource($todo));
     }
@@ -65,10 +59,7 @@ class TodoController extends Controller
      */
     public function update(TodoRequest $request, $id)
     {
-        // $todo =  $request->user('api')->todos()->findOrFail($id);
-        // $data = $request->all();
-        // $data['user_id'] = auth('api')->id();
-        // $todo->update($data);
+
         $dto = TodoDto::fromRequest($request->validated());
         $todo = $this->todoService->updateTodo($id, $dto);
         return $this->successResponse(new TodoResource($todo));
@@ -79,17 +70,14 @@ class TodoController extends Controller
      */
     public function destroy($id)
     {
-        // $todo = auth()->user('api')->todos()->findOrFail($id);
-        // $todo->delete();
+
         $this->todoService->deleteTodo($id);
         return $this->successResponse();
     }
 
     public function updateStatus($id)
     {
-        // $todo =  auth()->user('api')->todos()->findOrFail($id);
-        // $status = $todo->status == 'complete' ? 'incomplete' : 'complete';
-        // $todo->update(['status' => $status]);
+
         $todo = $this->todoService->updateStatus($id);
         return $this->successResponse(new TodoResource($todo));
     }
@@ -103,10 +91,7 @@ class TodoController extends Controller
         if ($validator->fails()) {
             return $this->errorResponse($validator->errors(), Response::HTTP_UNPROCESSABLE_ENTITY);
         }
-        // $todo = $todo = auth()->user('api')->todos()->findOrFail($id);
-        // $todo->update(['priority' => $request->priority]);
 
-        // return $this->successResponse($todo);
         $todo = $this->todoService->updatePriority($id, $request->priority);
         return $this->successResponse(new TodoResource($todo));
     }
