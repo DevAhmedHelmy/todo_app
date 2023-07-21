@@ -4,25 +4,20 @@ namespace App\Repositories;
 
 use App\Models\Todo;
 use App\Entities\TodoEntity;
-use Illuminate\Auth\AuthManager;
 
 
 class TodoRepository
 {
-    private AuthManager $authService;
-    public function __construct(AuthManager $authService)
+
+    public function getAllByUser(int $userId)
     {
-        $this->authService = $authService;
-    }
-    public function getAll()
-    {
-        $todos = $this->authService->user()->todos()->get();
+        $todos = Todo::where('user_id', $userId)->get();
         return TodoEntity::collection($todos);
     }
-    public function createTodo(TodoEntity $todoEntity): TodoEntity
+    public function createTodo(TodoEntity $todoEntity, int $userId): TodoEntity
     {
         $todo = Todo::create([
-            'user_id' => $this->authService->user()->id,
+            'user_id' => $userId,
             'title' => $todoEntity->getTitle(),
             'description' => $todoEntity->getDescription(),
             'status' => $todoEntity->getStatus(),
@@ -32,11 +27,10 @@ class TodoRepository
         return TodoEntity::fromModel($todo);
     }
 
-    public function updateTodo(int $id, TodoEntity $todoEntity): TodoEntity
+    public function updateTodo(Todo $todo, TodoEntity $todoEntity,int $userId): TodoEntity
     {
-        $todo = Todo::findOrFail($id);
         $todo->update([
-            'user_id' => $this->authService->user()->id,
+            'user_id' => $userId,
             'title' => $todoEntity->getTitle(),
             'description' => $todoEntity->getDescription(),
             'status' => $todoEntity->getStatus(),
@@ -46,28 +40,24 @@ class TodoRepository
         return TodoEntity::fromModel($todo);
     }
 
-    public function getById(int $id): TodoEntity
+    public function getById(Todo $todo): TodoEntity
     {
-        $todo = $this->authService->todos()->findOrFail($id);
         return TodoEntity::fromModel($todo);
     }
 
-    public function deleteTodo(int $id): bool
+    public function deleteTodo(Todo $todo): bool
     {
-        return $this->authService->todos()->findOrFail($id)->delete();
+        return $todo->delete();
     }
 
-    public function updateStatus(int $id): TodoEntity
+    public function updateStatus(Todo $todo): TodoEntity
     {
-        $todo =  $this->authService->todos()->findOrFail($id);
-        $status = $todo->status == 'complete' ? 'incomplete' : 'complete';
-        $todo->update(['status' => $status]);
+        $todo->update(['status' => ($todo->status == 'complete' ? 'incomplete' : 'complete')]);
         return TodoEntity::fromModel($todo);
     }
 
-    public function updatePriority(int $id, $priority): TodoEntity
+    public function updatePriority(Todo $todo, $priority): TodoEntity
     {
-        $todo = $this->authService->todos()->findOrFail($id);;
         $todo->update(['priority' => $priority]);
         return TodoEntity::fromModel($todo);
     }

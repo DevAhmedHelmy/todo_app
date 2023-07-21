@@ -27,7 +27,7 @@ class TodoTest extends TestCase
     }
     public function test_todo_list_by_login_user()
     {
-        $todo = Todo::factory()->create(['user_id' => $this->user->id]);
+        Todo::factory()->create(['user_id' => $this->user->id]);
         $this->actingAs($this->user, 'api')->getJson('/api/todo')
             ->assertStatus(200)
             ->assertJsonCount(1, 'data');

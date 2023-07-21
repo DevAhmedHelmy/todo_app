@@ -10,8 +10,6 @@ class UserDTO implements jsonSerializable
     private int $id;
     private string $name;
     private string $email;
-    private string $password;
-
 
     public function setId(int $id): void
     {
@@ -28,10 +26,7 @@ class UserDTO implements jsonSerializable
         $this->email = $email;
     }
 
-    public function setPassword(string $password): void
-    {
-        $this->password = $password;
-    }
+
 
     public function getId(): int
     {
@@ -48,10 +43,7 @@ class UserDTO implements jsonSerializable
         return $this->email;
     }
 
-    public function getPassword(): string
-    {
-        return $this->password;
-    }
+
     public static function fromEntity(UserEntity $entity): self
     {
         $dto = new self();
@@ -70,13 +62,10 @@ class UserDTO implements jsonSerializable
     }
     public function toArray(): array
     {
-
         return [
-            'ID'            => $this->getId(),
-            'Name'         => $this->getName(),
-            'Email'   => $this->getEmail(),
-
-
+            'id'            => $this->getId(),
+            'name'         => $this->getName(),
+            'email'   => $this->getEmail(),
         ];
     }
 
@@ -85,7 +74,6 @@ class UserDTO implements jsonSerializable
      */
     public function jsonSerialize()
     {
-
         return $this->toArray();
     }
 }

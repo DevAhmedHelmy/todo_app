@@ -8,6 +8,7 @@ use App\Http\Requests\Api\TodoRequest;
 use App\Http\Resources\TodoResource;
 use App\Http\Traits\ApiResponseTrait;
 use App\Library\ResourcePaginator;
+use App\Models\Todo;
 use App\Services\TodoService;
 use Illuminate\Http\{Request, Response};
 use Illuminate\Support\Facades\Validator;
@@ -27,8 +28,7 @@ class TodoController extends Controller
      */
     public function index(Request $request)
     {
-        // dd($this->todoService->getAll());
-        return $this->successResponse(TodoResource::collection($this->todoService->getAll()));
+        return $this->successResponse(TodoResource::collection($this->todoService->getAllByUser()));
     }
 
     /**
@@ -45,39 +45,34 @@ class TodoController extends Controller
     /**
      * Display the specified resource.
      */
-    public function show($id)
+    public function show(Todo $todo)
     {
-
-
-        $todo = $this->todoService->getById($id);
-
+        $todo = $this->todoService->getById($todo);
         return $this->successResponse(new TodoResource($todo));
     }
 
     /**
      * Update the specified resource in storage.
      */
-    public function update(TodoRequest $request, $id)
+    public function update(TodoRequest $request, Todo $todo)
     {
 
         $dto = TodoDto::fromRequest($request->validated());
-        $todo = $this->todoService->updateTodo($id, $dto);
+        $todo = $this->todoService->updateTodo($todo, $dto);
         return $this->successResponse(new TodoResource($todo));
     }
 
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy($id)
+    public function destroy(Todo $todo)
     {
-
-        $this->todoService->deleteTodo($id);
+        $this->todoService->deleteTodo($todo);
         return $this->successResponse();
     }
 
     public function updateStatus($id)
     {
-
         $todo = $this->todoService->updateStatus($id);
         return $this->successResponse(new TodoResource($todo));
     }
@@ -91,7 +86,6 @@ class TodoController extends Controller
         if ($validator->fails()) {
             return $this->errorResponse($validator->errors(), Response::HTTP_UNPROCESSABLE_ENTITY);
         }
-
         $todo = $this->todoService->updatePriority($id, $request->priority);
         return $this->successResponse(new TodoResource($todo));
     }

@@ -15,8 +15,8 @@ class TodoEntity
     private string $priority;
     private UserEntity $user;
     private ?DateTime $due_date;
-    // private ?DateTime $created_at;
-    // private ?DateTime $updated_at;
+    private ?DateTime $created_at;
+    private ?DateTime $updated_at;
 
 
     public function getId(): int
@@ -55,15 +55,15 @@ class TodoEntity
         return $this->user;
     }
 
-    // public function getCreatedAt(): ?DateTime
-    // {
-    //     return $this->created_at;
-    // }
+    public function getCreatedAt(): ?DateTime
+    {
+        return $this->created_at;
+    }
 
-    // public function getUpdatedAt(): ?DateTime
-    // {
-    //     return $this->updated_at;
-    // }
+    public function getUpdatedAt(): ?DateTime
+    {
+        return $this->updated_at;
+    }
 
     // setters
     public function setId(int $id): void
@@ -96,6 +96,14 @@ class TodoEntity
         $this->due_date = $due_date;
     }
 
+    public function setCreatedAt(DateTime $created_at): void
+    {
+        $this->created_at = $created_at;
+    }
+    public function setUpdatedAt(DateTime $updated_at): void
+    {
+        $this->updated_at = $updated_at;
+    }
     public function setUser($user): void
     {
         $this->user = $user;
@@ -104,7 +112,6 @@ class TodoEntity
 
     public static function fromModel(Todo $todo): self
     {
-
         $entity = new self();
         $entity->setId($todo->id);
         $entity->setTitle($todo->title);
@@ -112,6 +119,8 @@ class TodoEntity
         $entity->setPriority($todo->priority);
         $entity->setDueDate($todo->due_date);
         $entity->setDescription($todo->description);
+        $entity->setCreatedAt($todo->created_at);
+        $entity->setUpdatedAt($todo->updated_at);
         $entity->setUser(UserEntity::fromModel($todo->user));
         return $entity;
     }

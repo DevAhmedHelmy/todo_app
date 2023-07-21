@@ -25,7 +25,7 @@ class TodoFactory extends Factory
             'title' => fake()->sentence(),
             'description' => fake()->paragraph(),
             'user_id' => User::factory(),
-            'due_date' => Carbon::parse(Carbon::now()->addDays(3)),
+            'due_date' => Carbon::now()->addDays(3),
             'priority' => fake()->randomElement(['low', 'medium', 'high']),
             'status' => fake()->randomElement(['complete', 'incomplete']),
         ];

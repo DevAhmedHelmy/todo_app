@@ -1,0 +1,8 @@
+<?php
+
+namespace {{RepositoryNamespace}};
+
+class {{RepositoryName}}Repository
+{
+    // Your DTO properties and methods here
+}
