@@ -24,25 +24,39 @@ class TodoService
     }
     public function createTodo(TodoDTO $todoDto): TodoDTO
     {
-        $entity = new TodoEntity();
-        $entity->setTitle($todoDto->getTitle());
-        $entity->setDescription($todoDto->getDescription());
-        $entity->setStatus($todoDto->getStatus());
-        $entity->setPriority($todoDto->getPriority());
-        $entity->setDueDate($todoDto->getDueDate());
+        $entity = new TodoEntity(
+            null,
+            $todoDto->getTitle(),
+            $todoDto->getDescription(),
+            $todoDto->getStatus(),
+            $todoDto->getPriority(),
+            $todoDto->getDueDate(),
+        );
+        // $entity->setTitle($todoDto->getTitle());
+        // $entity->setDescription($todoDto->getDescription());
+        // $entity->setStatus($todoDto->getStatus());
+        // $entity->setPriority($todoDto->getPriority());
+        // $entity->setDueDate($todoDto->getDueDate());
         $todo = $this->todoRepository->createTodo($entity, $this->authService->user()->id);
         return TodoDTO::fromEntity($todo);
     }
 
     public function updateTodo(Todo $todo, TodoDTO $todoDto): TodoDTO
     {
-        $entity = new TodoEntity();
-        $entity->setId($todo->id);
-        $entity->setTitle($todoDto->getTitle());
-        $entity->setDescription($todoDto->getDescription());
-        $entity->setStatus($todoDto->getStatus());
-        $entity->setPriority($todoDto->getPriority());
-        $entity->setDueDate($todoDto->getDueDate());
+        $entity = new TodoEntity(
+            $todo->id,
+            $todoDto->getTitle(),
+            $todoDto->getDescription(),
+            $todoDto->getStatus(),
+            $todoDto->getPriority(),
+            $todoDto->getDueDate(),
+        );
+        // $entity->setId($todo->id);
+        // $entity->setTitle($todoDto->getTitle());
+        // $entity->setDescription($todoDto->getDescription());
+        // $entity->setStatus($todoDto->getStatus());
+        // $entity->setPriority($todoDto->getPriority());
+        // $entity->setDueDate($todoDto->getDueDate());
         $updated_todo = $this->todoRepository->updateTodo($todo, $entity, $this->authService->user()->id);
         return TodoDto::fromEntity($updated_todo);
     }
