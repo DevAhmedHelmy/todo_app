@@ -61,12 +61,5 @@ class UserEntity
         return $entity;
     }
 
-    // i want make function take more than 1 entity
 
-    public static function collection($users): array
-    {
-        return $users->map(function ($user) {
-            return self::fromModel($user);
-        })->toArray();
-    }
 }

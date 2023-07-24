@@ -3,15 +3,16 @@
 namespace App\Http\Controllers\Api;
 
 use App\DTO\TodoDto;
-use App\Http\Controllers\Controller;
-use App\Http\Requests\Api\TodoRequest;
-use App\Http\Resources\TodoResource;
-use App\Http\Traits\ApiResponseTrait;
-use App\Library\ResourcePaginator;
 use App\Models\Todo;
 use App\Services\TodoService;
+
+use App\Http\Controllers\Controller;
+use App\Http\Resources\TodoResource;
+use App\Http\Traits\ApiResponseTrait;
+use App\Http\Requests\Api\TodoRequest;
 use Illuminate\Http\{Request, Response};
 use Illuminate\Support\Facades\Validator;
+use Illuminate\Pagination\LengthAwarePaginator;
 
 class TodoController extends Controller
 {
@@ -28,7 +29,15 @@ class TodoController extends Controller
      */
     public function index(Request $request)
     {
-        return $this->successResponse(TodoResource::collection($this->todoService->getAllByUser()));
+        $paginatedTodos = $this->todoService->getAllByUser();
+
+        return new LengthAwarePaginator(
+            $paginatedTodos->getData(),
+            $paginatedTodos->getTotal(),
+            $paginatedTodos->getLimit(),
+            $paginatedTodos->getPage()
+        );
+
     }
 
     /**
@@ -48,7 +57,7 @@ class TodoController extends Controller
     public function show(Todo $todo)
     {
         $todo = $this->todoService->getById($todo);
-        return $this->successResponse(new TodoResource($todo));
+        return $this->successResponse($todo);
     }
 
     /**
@@ -59,7 +68,7 @@ class TodoController extends Controller
 
         $dto = TodoDto::fromRequest($request->validated());
         $todo = $this->todoService->updateTodo($todo, $dto);
-        return $this->successResponse(new TodoResource($todo));
+        return $this->successResponse($todo);
     }
 
     /**
@@ -74,7 +83,7 @@ class TodoController extends Controller
     public function updateStatus($id)
     {
         $todo = $this->todoService->updateStatus($id);
-        return $this->successResponse(new TodoResource($todo));
+        return $this->successResponse($todo);
     }
 
     public function updatePriority(Request $request, $id)
@@ -87,6 +96,6 @@ class TodoController extends Controller
             return $this->errorResponse($validator->errors(), Response::HTTP_UNPROCESSABLE_ENTITY);
         }
         $todo = $this->todoService->updatePriority($id, $request->priority);
-        return $this->successResponse(new TodoResource($todo));
+        return $this->successResponse($todo);
     }
 }

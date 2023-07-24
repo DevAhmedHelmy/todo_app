@@ -54,12 +54,7 @@ class UserDTO implements jsonSerializable
     }
 
 
-    public static function collection($entities): array
-    {
-        return array_map(function ($entity) {
-            return self::fromEntity($entity);
-        }, $entities);
-    }
+
     public function toArray(): array
     {
         return [

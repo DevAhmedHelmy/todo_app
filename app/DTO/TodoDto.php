@@ -57,14 +57,6 @@ class TodoDTO implements jsonSerializable
 
         );
 
-        // $dto = new self();
-        // $dto->setId($request['id'] ?? 0);
-        // $dto->setTitle($request['title']);
-        // $dto->setDescription($request['description']);
-        // $dto->setStatus($request['status'] ?? 'incomplete');
-        // $dto->setPriority($request['priority']);
-        // $dto->setDueDate(Carbon::parse($request['due_date']) ?? Carbon::now()->addDays(3));
-        // return $dto;
     }
 
     // getters
@@ -114,52 +106,6 @@ class TodoDTO implements jsonSerializable
     }
 
 
-    // setters
-    // public function setId(int $id): void
-    // {
-    //     $this->id = $id;
-    // }
-
-    // public function setTitle(string $title): void
-    // {
-    //     $this->title = $title;
-    // }
-
-    // public function setDescription(string $description): void
-    // {
-    //     $this->description = $description;
-    // }
-
-    // public function setStatus(string $status): void
-    // {
-    //     $this->status = $status;
-    // }
-
-    // public function setPriority(string $priority): void
-    // {
-    //     $this->priority = $priority;
-    // }
-
-    // public function setDueDate(DateTime $due_date): void
-    // {
-    //     $this->due_date = $due_date;
-    // }
-
-    // public function setUser(UserEntity $user): void
-    // {
-    //     $this->user = UserDTO::fromEntity($user);
-    // }
-
-    // public function setCreatedAt(DateTime $created_at): void
-    // {
-    //     $this->created_at = $created_at;
-    // }
-
-
-    // public function setUpdatedAt(DateTime $updated_at): void
-    // {
-    //     $this->updated_at = $updated_at;
-    // }
 
 
 
@@ -176,26 +122,11 @@ class TodoDTO implements jsonSerializable
             $entity->getCreatedAt(),
             $entity->getUpdatedAt()
         );
-        // $dto = new self();
-        // $dto->setId($entity->getId());
-        // $dto->setTitle($entity->getTitle());
-        // $dto->setStatus($entity->getStatus());
-        // $dto->setPriority($entity->getPriority());
-        // $dto->setDueDate($entity->getDueDate());
-        // $dto->setDescription($entity->getDescription());
-        // $dto->setUser($entity->getUser());
-        // $dto->setCreatedAt($entity->getCreatedAt());
-        // $dto->setUpdatedAt($entity->getUpdatedAt());
-        // return $dto;
+
     }
 
 
-    public static function collection($entities): array
-    {
-        return array_map(function ($entity) {
-            return self::fromEntity($entity);
-        }, $entities);
-    }
+
 
 
     public function toArray(): array

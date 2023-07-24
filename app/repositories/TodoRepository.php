@@ -8,11 +8,24 @@ use App\Entities\TodoEntity;
 
 class TodoRepository
 {
-
-    public function getAllByUser(int $userId)
+    public function count(int $userId)
     {
-        $todos = Todo::where('user_id', $userId)->get();
-        return TodoEntity::collection($todos);
+        return Todo::query()->where('user_id', $userId)->count();
+    }
+    public function getAllByUser(int $userId, $limit, $page)
+    {
+        $todos= Todo::query()
+            ->where('user_id', $userId)
+            ->with('user')
+            ->limit($limit)
+            ->offset(($page - 1) * $limit)
+            ->orderBy('id')
+            ->get()
+            ->map(function (Todo $todo) {
+                return TodoEntity::fromModel($todo);
+            });
+        return $todos;
+
     }
     public function createTodo(TodoEntity $todoEntity, int $userId): TodoEntity
     {
@@ -27,7 +40,7 @@ class TodoRepository
         return TodoEntity::fromModel($todo);
     }
 
-    public function updateTodo(Todo $todo, TodoEntity $todoEntity,int $userId): TodoEntity
+    public function updateTodo(Todo $todo, TodoEntity $todoEntity, int $userId): TodoEntity
     {
         $todo->update([
             'user_id' => $userId,

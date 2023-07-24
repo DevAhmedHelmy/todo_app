@@ -10,6 +10,7 @@ use Illuminate\Auth\AuthManager;
 
 class TodoService
 {
+    public const DEFAULT_LIMIT = 10;
     private $todoRepository;
     private AuthManager $authService;
     public function __construct(TodoRepository $todoRepository, AuthManager $authService)
@@ -18,9 +19,16 @@ class TodoService
         $this->todoRepository = $todoRepository;
     }
 
-    public function getAllByUser()
+    public function getAllByUser($limit = self::DEFAULT_LIMIT, $page = 1)
     {
-        return TodoDTO::collection($this->todoRepository->getAllByUser($this->authService->user()->id));
+        $auth = $this->authService->user();
+        $total = $this->todoRepository->count($auth->id);
+
+        $todos = $this->todoRepository
+            ->getAllByUser($auth->id,$limit, $page)
+            ->map(fn (TodoEntity $todo) => TodoDTO::fromEntity($todo))
+            ->toArray();
+        return new PaginatedService($todos, $total, $limit, $page);
     }
     public function createTodo(TodoDTO $todoDto): TodoDTO
     {
@@ -32,11 +40,6 @@ class TodoService
             $todoDto->getPriority(),
             $todoDto->getDueDate(),
         );
-        // $entity->setTitle($todoDto->getTitle());
-        // $entity->setDescription($todoDto->getDescription());
-        // $entity->setStatus($todoDto->getStatus());
-        // $entity->setPriority($todoDto->getPriority());
-        // $entity->setDueDate($todoDto->getDueDate());
         $todo = $this->todoRepository->createTodo($entity, $this->authService->user()->id);
         return TodoDTO::fromEntity($todo);
     }
@@ -51,12 +54,7 @@ class TodoService
             $todoDto->getPriority(),
             $todoDto->getDueDate(),
         );
-        // $entity->setId($todo->id);
-        // $entity->setTitle($todoDto->getTitle());
-        // $entity->setDescription($todoDto->getDescription());
-        // $entity->setStatus($todoDto->getStatus());
-        // $entity->setPriority($todoDto->getPriority());
-        // $entity->setDueDate($todoDto->getDueDate());
+
         $updated_todo = $this->todoRepository->updateTodo($todo, $entity, $this->authService->user()->id);
         return TodoDto::fromEntity($updated_todo);
     }
