@@ -2,26 +2,42 @@
 
 namespace App\Http\Controllers\Api;
 
+use App\DTO\TodoDto;
+use App\Models\Todo;
+use App\Services\TodoService;
+
 use App\Http\Controllers\Controller;
-use App\Http\Requests\Api\TodoRequest;
 use App\Http\Resources\TodoResource;
 use App\Http\Traits\ApiResponseTrait;
-use App\Library\ResourcePaginator;
+use App\Http\Requests\Api\TodoRequest;
 use Illuminate\Http\{Request, Response};
 use Illuminate\Support\Facades\Validator;
+use Illuminate\Pagination\LengthAwarePaginator;
 
 class TodoController extends Controller
 {
     use ApiResponseTrait;
+
+    private $todoService;
+    public function __construct(TodoService $todoService)
+    {
+        $this->todoService = $todoService;
+    }
 
     /**
      * Display a listing of the resource.
      */
     public function index(Request $request)
     {
-        $todos = $request->user('api')->todos()->paginate(10);
-        $collection = new ResourcePaginator(TodoResource::collection($todos));
-        return $this->successResponse($collection);
+        $paginatedTodos = $this->todoService->getAllByUser();
+
+        return new LengthAwarePaginator(
+            $paginatedTodos->getData(),
+            $paginatedTodos->getTotal(),
+            $paginatedTodos->getLimit(),
+            $paginatedTodos->getPage()
+        );
+
     }
 
     /**
@@ -29,50 +45,44 @@ class TodoController extends Controller
      */
     public function store(TodoRequest $request)
     {
-        $todo = $request->user('api')->todos()->create($request->validated());
-        return $this->successResponse(new TodoResource($todo), Response::HTTP_CREATED);
+
+        $dto = TodoDto::fromRequest($request->validated());
+        $todo = $this->todoService->createTodo($dto);
+        return $this->successResponse($todo, Response::HTTP_CREATED);
     }
 
     /**
      * Display the specified resource.
      */
-    public function show(Request $request, $id)
+    public function show(Todo $todo)
     {
-        $todo  = $request->user('api')->todos()->findOrFail($id);
-
-        return $this->successResponse(new TodoResource($todo));
+        $todo = $this->todoService->getById($todo);
+        return $this->successResponse($todo);
     }
 
     /**
      * Update the specified resource in storage.
      */
-    public function update(TodoRequest $request, $id)
+    public function update(TodoRequest $request, Todo $todo)
     {
-        $todo =  $request->user('api')->todos()->findOrFail($id);
-        $data = $request->all();
-        $data['user_id'] = auth('api')->id();
-        $todo->update($data);
 
-        return $this->successResponse(new TodoResource($todo));
+        $dto = TodoDto::fromRequest($request->validated());
+        $todo = $this->todoService->updateTodo($todo, $dto);
+        return $this->successResponse($todo);
     }
 
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy($id)
+    public function destroy(Todo $todo)
     {
-        $todo = auth()->user('api')->todos()->findOrFail($id);
-        $todo->delete();
-
+        $this->todoService->deleteTodo($todo);
         return $this->successResponse();
     }
 
     public function updateStatus($id)
     {
-        $todo =  auth()->user('api')->todos()->findOrFail($id);
-        $status = $todo->status == 'complete' ? 'incomplete' : 'complete';
-        $todo->update(['status' => $status]);
-
+        $todo = $this->todoService->updateStatus($id);
         return $this->successResponse($todo);
     }
 
@@ -85,9 +95,7 @@ class TodoController extends Controller
         if ($validator->fails()) {
             return $this->errorResponse($validator->errors(), Response::HTTP_UNPROCESSABLE_ENTITY);
         }
-        $todo = $todo = auth()->user('api')->todos()->findOrFail($id);
-        $todo->update(['priority' => $request->priority]);
-
+        $todo = $this->todoService->updatePriority($id, $request->priority);
         return $this->successResponse($todo);
     }
 }
